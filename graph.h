@@ -3,8 +3,8 @@
 
 #include "graphdata.h"
 
-void graph_print(GraphData* data);
-void graph_readableDataRate(int bytesPerSecond, char* buf);
-void graph_findRange(GraphData* data, int* highest, int* lowest);
+void graph_print(GraphData*, WINDOW*);
+void graph_readableDataRate(int, char*);
+void graph_findRange(GraphData*, int*, int*);
 
 #endif

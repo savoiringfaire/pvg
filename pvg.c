@@ -48,11 +48,10 @@ int main(int _argc, char ** _argv)
   GraphData data;
 
   graphdata_initialize(&data, COLS);
+  WINDOW* win = newwin(0,0,0,0);
 
   while(!dataFinished)
   {
-    graph_print(&data);
-
     pthread_mutex_lock(&byteCountMutex);
 
     int bytesPerSecond = (byteCount - lastByteCount) / (UPDATE_RATE / 1000);
@@ -63,6 +62,8 @@ int main(int _argc, char ** _argv)
     lastByteCount = byteCount;
 
     pthread_mutex_unlock(&byteCountMutex);
+
+    graph_print(&data, win);
 
     usleep(UPDATE_RATE * 1000);
   }

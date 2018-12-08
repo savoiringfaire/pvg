@@ -32,18 +32,23 @@ void graph_findRange(GraphData* data, int* highest, int* lowest)
 void graph_readableDataRate(int bytespersecond, char* buf)
 {
   int i = 0;
-  const char* units[] = {"bps", "kbps", "mbps", "gbps", "", "", "", "", "", ""};
+
+  const char* units[] = {"bps", "kbps", "mbps", "gbps"};
+
   int bitspersecond = bytespersecond * 8;
-  while(bitspersecond > 1024) {
+
+  while(bitspersecond > 1024 &&
+        i <= 3) { // Magic number which must match the above units[] array length minus 1
     bitspersecond /= 1024;
     i++;
   }
+
   sprintf(buf, "%d %s", bitspersecond, units[i]);
 }
 
-void graph_print(GraphData* data)
+void graph_print(GraphData* data, WINDOW* window)
 {
-  erase();
+  werase(window);
 
   int pointer = data->head + 1;
 
@@ -62,8 +67,8 @@ void graph_print(GraphData* data)
   while(!graphdata_pointerAtEnd(data, &pointer)) {
     int y = GRAPH_ROWS;
     for(int i = 0; i < (int) (data->readings[pointer]/bytesPerDivision); i++) {
-      move(y, x);
-      printw("█");
+      wmove(window, y, x);
+      wprintw(window, "█");
       y--;
     }
 
@@ -74,10 +79,10 @@ void graph_print(GraphData* data)
   // Print the 10 character long x-axis
   char buf[100];
   for(int i = 0; i <= GRAPH_ROWS; i++) {
-    move(i, 0);
+    wmove(window, i, 0);
     graph_readableDataRate(bytesPerDivision*(GRAPH_ROWS - i), buf);
-    printw("%-10s", buf);
+    wprintw(window, "%-10s", buf);
   }
 
-  refresh();
+  wrefresh(window);
 }
