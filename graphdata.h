@@ -1,5 +1,5 @@
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef GRAPHDATA_H
+#define GRAPHDATA_H
 
 typedef struct GraphData GraphData;
 struct GraphData {
