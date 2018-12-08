@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <locale.h>
 
+#include "graphdata.h"
+
 #define BUFFER_SIZE 100
 #define UPDATE_RATE 1000
 #define GRAPH_ROWS 20
@@ -31,64 +33,13 @@ void *forwardAndCount(void* vargp)
   dataFinished = true;
 }
 
-struct graphData {
-  int head;
-  int tail;
-  int length;
-  int *readings;
-};
-
-typedef struct graphData graphData;
-
-void incrementGraphDataPointer(graphData* data, int* pointer)
-{
-  if(*pointer >= data->length)
-  {
-    *pointer = 0;
-    return;
-  }
-
-  (*pointer)++;
-}
-
-int pointerAtEnd(graphData* data, int* pointer)
-{
-  if((data->head == 0 &&
-      *pointer == data->length-1) ||
-     *pointer == data->head)
-  {
-    return true;
-  }
-
-  return false;
-}
-
-void addSpeedReading(graphData* data, int reading)
-{
-  if (data->head == data->length - 1) {
-    data->head = 0;
-  } else {
-    (data->head)++;
-  }
-
-  data->readings[data->head] = reading;
-}
-
-void initializeGraphData(graphData* data, int elements)
-{
-  data->readings = (int *) malloc(sizeof(int) * elements);
-  data->head = 0;
-  data->tail = 0;
-  data->length = elements;
-}
-
-void findRange(graphData* data, int* highest, int* lowest)
+void findRange(GraphData* data, int* highest, int* lowest)
 {
   int pointer = data->head + 1;
   *highest = -1;
   *lowest = -1;
 
-  while(!pointerAtEnd(data, &pointer)) {
+  while(!graphdata_pointerAtEnd(data, &pointer)) {
     if(*highest == -1) {
       *highest = data->readings[pointer];
     }
@@ -102,7 +53,7 @@ void findRange(graphData* data, int* highest, int* lowest)
       *lowest = data->readings[pointer];
     }
 
-    incrementGraphDataPointer(data, &pointer);
+    graphdata_incrementPointer(data, &pointer);
   }
 }
 
@@ -118,7 +69,7 @@ void readabledatarate(int bytespersecond, char* buf)
   sprintf(buf, "%d %s", bitspersecond, units[i]);
 }
 
-void printGraph(graphData* data)
+void printGraph(GraphData* data)
 {
   erase();
 
@@ -136,7 +87,7 @@ void printGraph(graphData* data)
 
   int x = 0;
 
-  while(!pointerAtEnd(data, &pointer)) {
+  while(!graphdata_pointerAtEnd(data, &pointer)) {
     int y = GRAPH_ROWS;
     for(int i = 0; i < (int) (data->readings[pointer]/bytesPerDivision); i++) {
       move(y, x);
@@ -145,7 +96,7 @@ void printGraph(graphData* data)
     }
 
     x++;
-    incrementGraphDataPointer(data, &pointer);
+    graphdata_incrementPointer(data, &pointer);
   }
 
   // Print the 10 character long x-axis
@@ -169,9 +120,9 @@ int main(int _argc, char ** _argv)
   erase();
 
   int lastByteCount = 0;
-  graphData data;
+  GraphData data;
 
-  initializeGraphData(&data, COLS);
+  graphdata_initialize(&data, COLS);
 
   while(!dataFinished)
   {
@@ -180,7 +131,7 @@ int main(int _argc, char ** _argv)
     pthread_mutex_lock(&byteCountMutex);
 
     int bytesPerSecond = (byteCount - lastByteCount) / (UPDATE_RATE / 1000);
-    addSpeedReading(&data, bytesPerSecond);
+    graphdata_addDataPoint(&data, bytesPerSecond);
 
     int megabytesPerSecond = bytesPerSecond/1024/1024;
 
