@@ -3,8 +3,14 @@
 
 #include "graphdata.h"
 
-void graph_print(GraphData*, WINDOW*);
-void graph_readableDataRate(int, char*);
-void graph_findRange(GraphData*, int*, int*);
+typedef struct GraphConfig GraphConfig;
+struct GraphConfig {
+    int rows;
+    int columns;
+};
+
+void graph_print(GraphData*, GraphConfig*, WINDOW*);
+void graph_readableDataRate(uint64_t, char*);
+void graph_findRange(GraphData*, uint64_t*, uint64_t*);
 
 #endif

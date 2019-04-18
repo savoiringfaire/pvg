@@ -25,7 +25,7 @@ int graphdata_pointerAtEnd(GraphData* data, int* pointer)
   return false;
 }
 
-void graphdata_addDataPoint(GraphData* data, int reading)
+void graphdata_addDataPoint(GraphData* data, uint64_t reading)
 {
   if (data->head == data->length - 1) {
     data->head = 0;
@@ -38,7 +38,7 @@ void graphdata_addDataPoint(GraphData* data, int reading)
 
 void graphdata_initialize(GraphData* data, int elements)
 {
-  data->readings = (int *) malloc(sizeof(int) * elements);
+  data->readings = (uint64_t *) malloc(sizeof(uint64_t) * elements);
   data->head = 0;
   data->tail = 0;
   data->length = elements;
