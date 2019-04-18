@@ -10,7 +10,7 @@ struct GraphConfig {
 };
 
 void graph_print(GraphData*, GraphConfig*, WINDOW*);
-void graph_readableDataRate(uint64_t, char*);
-void graph_findRange(GraphData*, uint64_t*, uint64_t*);
+void graph_readableDataRate(int64_t, char*);
+void graph_findRange(GraphData*, int64_t*, int64_t*);
 
 #endif

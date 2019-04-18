@@ -15,13 +15,13 @@
 #define GRAPH_COLUMNS 20
 
 pthread_mutex_t byteCountMutex = PTHREAD_MUTEX_INITIALIZER;
-uint64_t byteCount = 0;
+int64_t byteCount = 0;
 volatile int dataFinished = false;
 
 void *forwardAndCount(void* vargp)
 {
   char buffer[BUFFER_SIZE];
-  uint64_t bytesRead;
+  int64_t bytesRead;
 
   while ((bytesRead = fread(&buffer, 1, BUFFER_SIZE, stdin)) != 0)
   {
@@ -49,7 +49,7 @@ int main(int _argc, char ** _argv) {
   pthread_create(&thread, NULL, forwardAndCount, NULL);
   erase();
 
-  uint64_t lastByteCount = 0;
+  int64_t lastByteCount = 0;
   GraphData data;
   GraphConfig config;
 
@@ -63,7 +63,7 @@ int main(int _argc, char ** _argv) {
   {
     pthread_mutex_lock(&byteCountMutex);
 
-    uint64_t bytesPerSecond = (byteCount - lastByteCount) / (UPDATE_RATE / 1000); // Milliseconds into seconds.
+    int64_t bytesPerSecond = (byteCount - lastByteCount) / (UPDATE_RATE / 1000); // Milliseconds into seconds.
     graphdata_addDataPoint(&data, bytesPerSecond);
 
     lastByteCount = byteCount;

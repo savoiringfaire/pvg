@@ -8,12 +8,12 @@ struct GraphData {
   int head;
   int tail;
   int length;
-  uint64_t *readings;
+  int64_t *readings;
 };
 
 void graphdata_incrementPointer(GraphData*, int*);
 int  graphdata_pointerAtEnd(GraphData*, int*);
-void graphdata_addDataPoint(GraphData*, uint64_t);
+void graphdata_addDataPoint(GraphData*, int64_t);
 void graphdata_initialize(GraphData*, int);
 void graphdata_destroy(GraphData*);
 

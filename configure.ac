@@ -9,7 +9,7 @@ AC_CONFIG_FILES([
 AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
 AC_CHECK_HEADERS(ncurses.h,, [AC_MSG_ERROR([ncurses.h required])])
 
-AC_CHECK_LIB(ncurses, wprintw, [LIBS="$LIBS -lncurses"])
+AC_CHECK_LIB(ncursesw, wprintw, [LIBS="$LIBS -lncursesw"])
 AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"])
 
 AC_OUTPUT
