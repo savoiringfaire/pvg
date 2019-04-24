@@ -2,6 +2,7 @@
 #define GRAPHDATA_H
 
 #include <stdint.h>
+#include <pthread.h>
 
 typedef struct GraphData GraphData;
 struct GraphData {

@@ -43,7 +43,7 @@ void graph_readableDataRate(int64_t bytespersecond, char* buf)
   int64_t bitspersecond = bytespersecond * 8;
 
   while(bitspersecond > 1024 &&
-        i <= 4) { // Magic number which must match the above units[] array length minus 1
+        i <= 3) { // Magic number which must match the above units[] array length minus 1
     bitspersecond /= 1024;
     i++;
   }
@@ -53,54 +53,61 @@ void graph_readableDataRate(int64_t bytespersecond, char* buf)
 
 void graph_print(GraphData* data, GraphConfig* config, WINDOW* window)
 {
-  werase(window);
-
   int pointer = data->head + 1;
 
   int64_t highest;
   int64_t lowest;
 
   graph_findRange(data, &highest, &lowest);
+  if(highest == -1 || lowest == -1)
+    return;
+
   int64_t range = highest-lowest;
-  int64_t bytesPerDivision = (int64_t) range/config->rows;
+  int64_t bytesPerDivision = (int64_t) range/(config->rows-1);
+
+  werase(window);
 
   if(bytesPerDivision == 0)
     return;
 
-  for (int x = 0; !graphdata_pointerAtEnd(data, &pointer); graphdata_incrementPointer(data, &pointer)) {
-    int y = config->rows - (data->readings[pointer]/bytesPerDivision);
+  for (int x = 10; !graphdata_pointerAtEnd(data, &pointer); graphdata_incrementPointer(data, &pointer)) {
+    //if (data->readings[pointer] == -1)
+    //{
+    //  x++;
+    //  continue;
+    //}
 
     int next = pointer;
     graphdata_incrementPointer(data, &next);
-    
-    int64_t nextValueY = data->readings[next]/bytesPerDivision;
-    int64_t currentValueY = data->readings[pointer]/bytesPerDivision;
 
-    wmove(window, y, x);
+    int64_t nextValueY    = config->rows - ((int)(data->readings[next] - lowest))/bytesPerDivision;
+    int64_t currentValueY = config->rows - ((int)(data->readings[pointer] - lowest))/bytesPerDivision;
 
-    if (nextValueY == currentValueY) {
+    wmove(window, currentValueY, x);
+
+    if (nextValueY == currentValueY || data->readings[next] == -1) {
       wprintw(window, "─");
     } else {
-      if (nextValueY > currentValueY){
+      if (nextValueY < currentValueY){
         wprintw(window, "╯");
-        wmove(window, (config->rows - nextValueY), x);
+        wmove(window, (nextValueY), x);
         wprintw(window, "╭");
-        for(int i = currentValueY+1; i<nextValueY; i++) {
-          wmove(window, (config->rows - (i)), x);
+        for(int i = nextValueY+1; i<currentValueY; i++) {
+          wmove(window, ((i)), x);
           wprintw(window, "│");
         }
       }
       else {
         wprintw(window, "╮");
-        wmove(window, (config->rows - nextValueY), x);
+        wmove(window, (nextValueY), x);
         wprintw(window, "╰");
-        for(int i = nextValueY+1; i<currentValueY; i++) {
-          wmove(window, (config->rows - (i)), x);
+        for(int i = currentValueY+1; i<nextValueY; i++) {
+          wmove(window, ((i)), x);
           wprintw(window, "│");
         }
       }
     }
-    
+
     x++;
 
     if (graphdata_pointerAtEnd(data, &next)) {
@@ -112,7 +119,7 @@ void graph_print(GraphData* data, GraphConfig* config, WINDOW* window)
   char buf[100];
   for(int i = 0; i <= config->rows; i++) {
     wmove(window, i, 0);
-    graph_readableDataRate(bytesPerDivision*(config->rows - i), buf);
+    graph_readableDataRate(lowest + bytesPerDivision*(config->rows - i), buf);
     wprintw(window, "%-10s", buf);
   }
 

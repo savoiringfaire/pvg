@@ -4,7 +4,7 @@
 
 void graphdata_incrementPointer(GraphData* data, int* pointer)
 {
-  if(*pointer >= data->length)
+  if(*pointer >= data->length - 1)
     {
       *pointer = 0;
       return;
