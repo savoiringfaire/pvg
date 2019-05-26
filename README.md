@@ -16,7 +16,6 @@ $ sudo make install
 You will need the following libraries:
 
 * libncurses
-* 
 
 ### Installing pre-build binary
 
