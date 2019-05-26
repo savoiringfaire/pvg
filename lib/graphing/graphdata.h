@@ -4,18 +4,17 @@
 #include <stdint.h>
 #include <pthread.h>
 
-typedef struct GraphData GraphData;
-struct GraphData {
-  int head;
-  int tail;
-  int length;
-  int64_t *readings;
-};
+typedef struct graphdata_t graphdata_t;
 
-void graphdata_incrementPointer(GraphData*, int*);
-int  graphdata_pointerAtEnd(GraphData*, int*);
-void graphdata_addDataPoint(GraphData*, int64_t);
-void graphdata_initialize(GraphData*, int);
-void graphdata_destroy(GraphData*);
+typedef graphdata_t* graphdata_handle_t;
+typedef int* graphdata_cursor_t;
+
+void graphdata_increment_cursor(graphdata_handle_t, graphdata_cursor_t);
+void graphdata_read_data(graphdata_handle_t, graphdata_cursor_t);
+int  graphdata_pointerAtEnd(graphdata_handle_t, graphdata_cursor_t);
+int  graphdata_current_head(graphdata_handle_t);
+void graphdata_addDataPoint(graphdata_handle_t, int64_t);
+void graphdata_initialize(graphdata_handle_t, int);
+void graphdata_destroy(graphdata_handle_t);
 
 #endif

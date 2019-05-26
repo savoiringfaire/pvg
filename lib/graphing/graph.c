@@ -6,9 +6,9 @@
 #include "graph.h"
 #include "graphdata.h"
 
-void graph_findRange(GraphData* data, int64_t* highest, int64_t* lowest)
+void graph_findRange(graphdata_handle_t data, int64_t* highest, int64_t* lowest)
 {
-  int pointer = data->head + 1;
+  int pointer = graphdata_current_head(data) + 1;
   *highest = -1;
   *lowest = -1;
 
@@ -51,7 +51,7 @@ void graph_readableDataRate(int64_t bytespersecond, char* buf)
   sprintf(buf, "%" PRIu64 " %s", bitspersecond, units[i]);
 }
 
-void graph_print(GraphData* data, GraphConfig* config, WINDOW* window)
+void graph_print(graphdata_handle_t data, GraphConfig* config, WINDOW* window)
 {
   int pointer = data->head + 1;
 

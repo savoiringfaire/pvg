@@ -9,8 +9,8 @@ struct GraphConfig {
     int columns;
 };
 
-void graph_print(GraphData*, GraphConfig*, WINDOW*);
+void graph_print(graphdata_handle_t, GraphConfig*, WINDOW*);
 void graph_readableDataRate(int64_t, char*);
-void graph_findRange(GraphData*, int64_t*, int64_t*);
+void graph_findRange(graphdata_handle_t, int64_t*, int64_t*);
 
 #endif

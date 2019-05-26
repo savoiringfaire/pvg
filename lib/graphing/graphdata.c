@@ -2,18 +2,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-void graphdata_incrementPointer(GraphData* data, int* pointer)
+struct graphdata_t {
+  graphdata_cursor_t head;
+  graphdata_cursor_t tail;
+  int length;
+  int64_t *readings;
+};
+
+void graphdata_increment_cursor(graphdata_handle_t data, graphdata_cursor_t cursor)
 {
-  if(*pointer >= data->length - 1)
+  if(*cursor >= data->length - 1)
     {
-      *pointer = 0;
+      *cursor = 0;
       return;
     }
 
-  (*pointer)++;
+  (*cursor)++;
 }
 
-int graphdata_pointerAtEnd(GraphData* data, int* pointer)
+int graphdata_pointerAtEnd(graphdata_handle_t data, int* pointer)
 {
   if((data->head == 0 &&
       *pointer == data->length-1) ||
@@ -25,7 +32,7 @@ int graphdata_pointerAtEnd(GraphData* data, int* pointer)
   return false;
 }
 
-void graphdata_addDataPoint(GraphData* data, int64_t reading)
+void graphdata_addDataPoint(graphdata_handle_t data, int64_t reading)
 {
   if (data->head == data->length - 1) {
     data->head = 0;
@@ -36,7 +43,7 @@ void graphdata_addDataPoint(GraphData* data, int64_t reading)
   data->readings[data->head] = reading;
 }
 
-void graphdata_initialize(GraphData* data, int elements)
+void graphdata_initialize(graphdata_handle_t data, int elements)
 {
   data->readings = (int64_t *) malloc(sizeof(int64_t) * elements);
 
@@ -49,7 +56,11 @@ void graphdata_initialize(GraphData* data, int elements)
   data->length = elements;
 }
 
-void graphdata_destroy(GraphData* data)
+int graphdata_current_head(graphdata_handle_t data) {
+  return data->head;
+}
+
+void graphdata_destroy(graphdata_handle_t data)
 {
   free(data->readings);
   free(data);

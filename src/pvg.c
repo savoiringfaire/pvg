@@ -124,7 +124,7 @@ int main(int argc, char ** argv) {
   erase();
 
   int64_t lastByteCount = 0;
-  GraphData data;
+  graphdata_handle_t data;
   GraphConfig config;
 
   config.rows = arguments.rows;
