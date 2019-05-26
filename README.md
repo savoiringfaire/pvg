@@ -13,6 +13,11 @@ $ make
 $ sudo make install
 ```
 
+You will need the following libraries:
+
+* libncurses
+* 
+
 ### Installing pre-build binary
 
 You can find pre-built binaries for various linux and unix flavours under the releases page. You can install by downloading one of the tarballs and copying into your preferred bin folder.
