@@ -6,18 +6,72 @@
 #include <locale.h>
 #include <signal.h>
 #include <inttypes.h>
+#include <argp.h>
 
 #include "lib/graphing/graphdata.h"
 #include "lib/graphing/graph.h"
 
 #define BUFFER_SIZE 100
 #define UPDATE_RATE 100 // Milliseconds
-#define GRAPH_ROWS 20
-#define GRAPH_COLUMNS 20
 
 pthread_mutex_t byteCountMutex = PTHREAD_MUTEX_INITIALIZER;
 int64_t byteCount = 0;
 volatile int shouldExit = false;
+
+const char* argp_program_version = "0.5";
+const char* argp_program_bug_address = "<marcus@hhra.me>";
+
+/* The options we understand. */
+static struct argp_option options[] = {
+  {"rows",   'r', "ROWS", OPTION_ARG_OPTIONAL,
+   "Number of rows in the graph, defaults to 20" },
+  {"cols",   'c', "COLS", OPTION_ARG_OPTIONAL,
+   "Number of columns in the graph, defaults to the full width of the terminal" },
+  { 0 }
+};
+
+struct arguments
+{
+	int rows;
+	int cols;
+};
+
+/* Program documentation. */
+static char doc[] =
+  "A graphical replacement to the popular pv utility on linux. Designed to be drop-in (apart from arguments) will display a curses graph of the data rate going through a pipe.";
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  /* Get the input argument from argp_parse, which we
+     know is a pointer to our arguments structure. */
+  struct arguments *arguments = state->input;
+
+  switch (key)
+    {
+    case 'r':
+      arguments->rows = atoi(arg);
+      if (arguments->rows == 0)
+	      argp_usage(state);
+      break;
+    case 'c':
+      arguments->cols = atoi(arg);
+      if (arguments->cols == 0)
+	      argp_usage(state);
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+  return 0;
+}
+
+/* Our argument parser.  The options, parser, and
+   args_doc fields are zero because we have neither options or
+   arguments; doc and argp_program_bug_address will be
+   used in the output for ‘--help’, and the ‘--version’
+   option will print out argp_program_version. */
+static struct argp argp = {options, parse_opt, 0, doc };
 
 void *forwardAndCount(void* vargp)
 {
@@ -40,8 +94,17 @@ void intHandler(int dummy) {
   shouldExit = true;
 }
 
-int main(int _argc, char ** _argv) {
+int main(int argc, char ** argv) {
   setlocale(LC_ALL, "");
+
+  struct arguments arguments;
+
+  /* Default values. */
+  arguments.rows = 20;
+  arguments.cols = COLS;
+
+  argp_parse (&argp, argc, argv, 0, 0, 0);
+
   newterm(NULL, stderr, stdin);
   signal(SIGINT, intHandler);
 
@@ -53,7 +116,7 @@ int main(int _argc, char ** _argv) {
   GraphData data;
   GraphConfig config;
 
-  config.rows = GRAPH_ROWS;
+  config.rows = 20;
   config.columns = COLS;
 
   graphdata_initialize(&data, COLS-10);
