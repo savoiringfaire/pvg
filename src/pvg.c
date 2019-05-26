@@ -27,6 +27,8 @@ static struct argp_option options[] = {
    "Number of rows in the graph, defaults to 20" },
   {"cols",   'c', "COLS", OPTION_ARG_OPTIONAL,
    "Number of columns in the graph, defaults to the full width of the terminal" },
+  {"rate",   'u', "SECONDS", OPTION_ARG_OPTIONAL,
+   "The number of seconds between readings" },
   { 0 }
 };
 
@@ -34,6 +36,7 @@ struct arguments
 {
 	int rows;
 	int cols;
+	int rate;
 };
 
 /* Program documentation. */
@@ -50,14 +53,22 @@ parse_opt (int key, char *arg, struct argp_state *state)
   switch (key)
     {
     case 'r':
-      arguments->rows = atoi(arg);
-      if (arguments->rows == 0)
-	      argp_usage(state);
+      if ( arg == NULL ||
+	   (arguments->rows = atoi(arg)) == 0) {
+        argp_usage(state);
+      }
       break;
     case 'c':
-      arguments->cols = atoi(arg);
-      if (arguments->cols == 0)
-	      argp_usage(state);
+      if ( arg == NULL ||
+	   (arguments->cols = atoi(arg)) == 0) {
+        argp_usage(state);
+      }
+      break;
+    case 'u':
+      if ( arg == NULL ||
+	   (arguments->rate = atoi(arg)) == 0) {
+        argp_usage(state);
+      }
       break;
 
     default:
@@ -103,7 +114,7 @@ int main(int argc, char ** argv) {
   arguments.rows = 20;
   arguments.cols = COLS;
 
-  argp_parse (&argp, argc, argv, 0, 0, 0);
+  argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
   newterm(NULL, stderr, stdin);
   signal(SIGINT, intHandler);
@@ -116,8 +127,8 @@ int main(int argc, char ** argv) {
   GraphData data;
   GraphConfig config;
 
-  config.rows = 20;
-  config.columns = COLS;
+  config.rows = arguments.rows;
+  config.columns = arguments.cols;
 
   graphdata_initialize(&data, COLS-10);
   WINDOW* win = newwin(0,0,0,0);
@@ -134,7 +145,7 @@ int main(int argc, char ** argv) {
     pthread_mutex_lock(&byteCountMutex);
 
     fprintf(fp, "calculating BPS\n");
-    float secondsPassed = (float)UPDATE_RATE / 1000.0;
+    float secondsPassed = (float)arguments.rate;
     fprintf(fp, "Seconds: %f", secondsPassed);
     int64_t bytesSent = byteCount - lastByteCount;
     fprintf(fp, "Sent: %" PRIu64, bytesSent);
@@ -157,7 +168,7 @@ int main(int argc, char ** argv) {
     fprintf(fp, "printing graph\n");
     graph_print(&data, &config, win);
 
-    usleep(UPDATE_RATE * 1000); // Milliseconds into microseconds.
+    usleep(arguments.rate * 1000000); // Milliseconds into microseconds.
   }
 
   fclose(fp);
