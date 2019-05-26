@@ -7,8 +7,8 @@
 #include <signal.h>
 #include <inttypes.h>
 
-#include "graphdata.h"
-#include "graph.h"
+#include "lib/graphing/graphdata.h"
+#include "lib/graphing/graph.h"
 
 #define BUFFER_SIZE 100
 #define UPDATE_RATE 100 // Milliseconds
