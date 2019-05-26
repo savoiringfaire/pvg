@@ -96,3 +96,9 @@ Mkfile.old
 dkms.conf
 
 Makefile
+
+config.h.in
+config.h
+
+pvg
+.deps
