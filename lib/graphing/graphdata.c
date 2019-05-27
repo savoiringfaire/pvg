@@ -32,7 +32,7 @@ int graphdata_cursor_at_end(graphdata_handle_t data, graphdata_cursor_t cursor)
   return false;
 }
 
-void graphdata_addDataPoint(graphdata_handle_t data, graphdata_datapoint_t reading)
+void graphdata_add_datapoint(graphdata_handle_t data, graphdata_datapoint_t reading)
 {
   if (data->head == data->length - 1) {
     data->head = 0;

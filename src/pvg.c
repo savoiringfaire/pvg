@@ -130,7 +130,7 @@ int main(int argc, char ** argv) {
   config.rows = arguments.rows;
   config.columns = arguments.cols;
 
-  graphdata_initialize(&data, COLS-10);
+  graphdata_initialize(data, COLS-10);
   WINDOW* win = newwin(0,0,0,0);
 
   FILE *fp;
@@ -154,9 +154,9 @@ int main(int argc, char ** argv) {
 
     fprintf(fp, "Adding datapoint\n");
     if (bytesPerSecond == 0) {
-      graphdata_addDataPoint(&data, -1);
+      graphdata_add_datapoint(data, -1);
     } else {
-      graphdata_addDataPoint(&data, bytesPerSecond);
+      graphdata_add_datapoint(data, bytesPerSecond);
     }
 
     fprintf(fp, "Setting lastbytecound\n");
@@ -166,7 +166,7 @@ int main(int argc, char ** argv) {
     pthread_mutex_unlock(&byteCountMutex);
 
     fprintf(fp, "printing graph\n");
-    graph_print(&data, &config, win);
+    graph_print(data, &config, win);
 
     usleep(arguments.rate * 1000000); // Milliseconds into microseconds.
   }
