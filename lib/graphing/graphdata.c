@@ -9,22 +9,22 @@ struct graphdata_t {
   graphdata_datapoint_t *readings;
 };
 
-void graphdata_increment_cursor(graphdata_handle_t data, graphdata_cursor_t cursor)
+void graphdata_advance_cursor(graphdata_handle_t data, graphdata_cursor_t* cursor)
 {
   if(*cursor >= data->length - 1)
     {
-      *cursor = 0;
+      cursor = 0;
       return;
     }
 
   (*cursor)++;
 }
 
-int graphdata_pointerAtEnd(graphdata_handle_t data, int* pointer)
+int graphdata_cursor_at_end(graphdata_handle_t data, graphdata_cursor_t cursor)
 {
   if((data->head == 0 &&
-      *pointer == data->length-1) ||
-     *pointer == data->head)
+      cursor == data->length-1) ||
+     cursor == data->head)
     {
       return true;
     }
@@ -37,10 +37,15 @@ void graphdata_addDataPoint(graphdata_handle_t data, graphdata_datapoint_t readi
   if (data->head == data->length - 1) {
     data->head = 0;
   } else {
-    (data->head)++;
+    data->head++;
   }
 
   data->readings[data->head] = reading;
+}
+
+graphdata_datapoint_t graphdata_read_datapoint(graphdata_handle_t data, graphdata_cursor_t cursor)
+{
+  return data->readings[cursor];
 }
 
 void graphdata_initialize(graphdata_handle_t data, int elements)
@@ -56,7 +61,7 @@ void graphdata_initialize(graphdata_handle_t data, int elements)
   data->length = elements;
 }
 
-int graphdata_current_head(graphdata_handle_t data) {
+graphdata_cursor_t graphdata_current_head(graphdata_handle_t data) {
   return data->head;
 }
 

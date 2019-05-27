@@ -8,29 +8,29 @@
 
 void graph_findRange(graphdata_handle_t data, int64_t* highest, int64_t* lowest)
 {
-  int pointer = graphdata_current_head(data) + 1;
+  graphdata_cursor_t cursor = graphdata_current_head(data) + 1;
   *highest = -1;
   *lowest = -1;
 
-  while(!graphdata_pointerAtEnd(data, &pointer)) {
-    if(data->readings[pointer] == -1) {
-      graphdata_incrementPointer(data, &pointer);
+  while(!graphdata_cursor_at_end(data, cursor)) {
+    if(graphdata_read_datapoint(data, cursor) == -1) {
+      graphdata_advance_cursor(data, &cursor);
       continue;
     }
     if(*highest == -1) {
-      *highest = data->readings[pointer];
+      *highest = graphdata_read_datapoint(data, cursor);
     }
     if(*lowest == -1) {
-      *lowest = data->readings[pointer];
+      *lowest = graphdata_read_datapoint(data, cursor);
     }
 
-    if(data->readings[pointer] > *highest) {
-      *highest = data->readings[pointer];
-    } else if(data->readings[pointer] < *lowest) {
-      *lowest = data->readings[pointer];
+    if(graphdata_read_datapoint(data, cursor) > *highest) {
+      *highest = graphdata_read_datapoint(data, cursor);
+    } else if(graphdata_read_datapoint(data, cursor) < *lowest) {
+      *lowest = graphdata_read_datapoint(data, cursor);
     }
 
-    graphdata_incrementPointer(data, &pointer);
+    graphdata_advance_cursor(data, &cursor);
   }
 }
 
@@ -53,7 +53,7 @@ void graph_readableDataRate(int64_t bytespersecond, char* buf)
 
 void graph_print(graphdata_handle_t data, GraphConfig* config, WINDOW* window)
 {
-  int pointer = data->head + 1;
+  graphdata_cursor_t cursor = graphdata_current_head(data) + 1;
 
   int64_t highest;
   int64_t lowest;
@@ -70,22 +70,16 @@ void graph_print(graphdata_handle_t data, GraphConfig* config, WINDOW* window)
   if(bytesPerDivision == 0)
     return;
 
-  for (int x = 10; !graphdata_pointerAtEnd(data, &pointer); graphdata_incrementPointer(data, &pointer)) {
-    //if (data->readings[pointer] == -1)
-    //{
-    //  x++;
-    //  continue;
-    //}
+  for (int x = 10; !graphdata_cursor_at_end(data, cursor); graphdata_advance_cursor(data, &cursor)) {
+    graphdata_cursor_t next = cursor;
+    graphdata_advance_cursor(data, &cursor);
 
-    int next = pointer;
-    graphdata_incrementPointer(data, &next);
-
-    int64_t nextValueY    = config->rows - ((int)(data->readings[next] - lowest))/bytesPerDivision;
-    int64_t currentValueY = config->rows - ((int)(data->readings[pointer] - lowest))/bytesPerDivision;
+    int64_t nextValueY    = config->rows - ((int)(graphdata_read_datapoint(data, next) - lowest))/bytesPerDivision;
+    int64_t currentValueY = config->rows - ((int)(graphdata_read_datapoint(data, cursor) - lowest))/bytesPerDivision;
 
     wmove(window, currentValueY, x);
 
-    if (nextValueY == currentValueY || data->readings[next] == -1) {
+    if (nextValueY == currentValueY || graphdata_read_datapoint(data, next) == -1) {
       wprintw(window, "─");
     } else {
       if (nextValueY < currentValueY){
@@ -110,7 +104,7 @@ void graph_print(graphdata_handle_t data, GraphConfig* config, WINDOW* window)
 
     x++;
 
-    if (graphdata_pointerAtEnd(data, &next)) {
+    if (graphdata_cursor_at_end(data, next)) {
       break;
     }
   }
